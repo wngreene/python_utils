@@ -1,4 +1,4 @@
-python-utils
+python_utils
 ============
 
 Python utilities.
