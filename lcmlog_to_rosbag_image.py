@@ -34,6 +34,11 @@ def main():
     roi_parser.add_argument('--do_rectify', default=False, type=bool, dest='do_rectify', help="Do rectification when querying ROI.")
     args = parser.parse_args()
 
+    if args.lcm_channels is None:
+        args.lcm_channels = []
+    if args.yml_files is None:
+        args.yml_files = []
+
     args.lcm_channels.append(args.left_img_channel)
     args.yml_files.append(args.left_camera_yml)
 
@@ -72,6 +77,7 @@ def main():
                     nsecs_float = (secs_float - np.floor(secs_float)) * 1e9
                     ros_msg.header.stamp.secs = np.uint32(np.floor(secs_float))
                     ros_msg.header.stamp.nsecs = np.uint32(np.floor(nsecs_float))
+                    ros_msg.header.frame_id = "camera"
 
                     ros_msg.format = 'jpeg'
 
@@ -80,8 +86,8 @@ def main():
                     # Fill in camera info
                     camera_info = CameraInfo()
                     camera_info.header = ros_msg.header
-                    camera_info.height = y['image_width']
-                    camera_info.width = y['image_height']
+                    camera_info.height = y['image_height']
+                    camera_info.width = y['image_width']
 
                     if y["distortion_model"] != "plumb_bob":
                         print "Encountered non-supported distorion model %s. Skipping..." % y["distortion_model"]
@@ -100,8 +106,8 @@ def main():
                     camera_info.roi.width = args.width
                     camera_info.roi.do_rectify = args.do_rectify
 
-                    bag.write("/camera/" + l + "/image_raw/compressed", ros_msg)
-                    bag.write("/camera/" + l + "/camera_info", camera_info)
+                    bag.write("/camera/" + l + "/image_raw/compressed", ros_msg, ros_msg.header.stamp)
+                    bag.write("/camera/" + l + "/camera_info", camera_info, camera_info.header.stamp)
 
                     count += 1
 
