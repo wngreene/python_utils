@@ -26,7 +26,8 @@ def main():
     for topic, msg, t in bag.read_messages(topics=[args.image_topic]):
         cv_img = bridge.imgmsg_to_cv2(msg, desired_encoding="passthrough")
 
-        cv2.imwrite(os.path.join(args.output_dir, "frame%06i.png" % count), cv_img)
+        timestamp = rospy.Time(msg.header.stamp.secs, msg.header.stamp.nsecs)
+        cv2.imwrite(os.path.join(args.output_dir, "%.6f.png" % (timestamp.to_sec())), cv_img)
         print "Wrote image %i" % count
 
         count += 1
